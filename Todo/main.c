@@ -7,10 +7,10 @@ int main(int argc, char *argv[])
 {	
 	/* Create todo list */
 	Todo list;
-	todo_init(&list, "todo.txt");
+	size_t size = todo_init(&list, "todo.txt");
 	
 	/* Load existing tasks */
-	char (*tasks)[MAXLINE] = malloc((list.length + 1) * sizeof *tasks);
+	void *tasks = malloc(size);
 	get_tasks(&list, tasks);
 
 	/* Parse and process arguments */

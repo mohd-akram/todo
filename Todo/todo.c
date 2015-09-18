@@ -4,7 +4,7 @@
 #include "todo.h"
 
 static
-void write_header(Todo *list, int num)
+void write_header(Todo *list, int n)
 {
 	if (list->file == NULL)
 		fopen_s(&list->file, list->filename, "w+");
@@ -14,19 +14,32 @@ void write_header(Todo *list, int num)
 	fprintf(list->file,
 			"Todo\n"
 			"----\n\n"
-			"%d task%s\n\n", num, num != 1 ? "s" : "");
+			"%d task%s\n\n", n, n != 1 ? "s" : "");
 }
 
 static
-long int find_digit(FILE *file)
+int find_tasks(FILE *file, char tasks[][MAXLINE])
 {
-	int c;
+	int i = 0;
 
-	while ((c = getc(file)) != EOF && !isdigit(c))
-		;
-	ungetc(c, file);
+	rewind(file);
+	while (!feof(file)) {
+		/* Check if line contains a todo item */
+		int res, x;
+		res = tasks == NULL ?
+			fscanf_s(file, "%d. %c", &x, &x) :
+			fscanf_s(file, "%d. %[^\n]", &x,
+				tasks[i], sizeof tasks[i]);
+		if (res == 2)
+			++i;
 
-	return ftell(file);
+		/* Go to end of line */
+		int c;
+		while ((c = getc(file)) != EOF && c != '\n')
+			;
+	}
+
+	return i;
 }
 
 static
@@ -35,39 +48,29 @@ void fprint_task(Todo *list, int task_no, char *task)
 	fprintf(list->file, "%2d. %s\n", task_no, task);
 }
 
-static
-void seek_tasks(Todo *list)
-{
-	fseek(list->file, list->start_pos, SEEK_SET);
-}
-
-void todo_init(Todo *list, const char *filename)
+size_t todo_init(Todo *list, const char *filename)
 {	
 	list->filename = filename;
-	fopen_s(&list->file, filename, "r+");
 
-	if (list->file == NULL) {
+	fopen_s(&list->file, filename, "r");
+
+	/* Create a new file if it doesn't exist */
+	if (list->file == NULL)
 		write_header(list, 0);
-		rewind(list->file);
-	}
 
-	/* Seek to first digit in file to get the number of tasks */
-	find_digit(list->file);
-
-	/* Update the number of tasks */
-	fscanf_s(list->file, "%d", &(list->length));
-
-	/* Find the first numbered task */
-	list->start_pos = find_digit(list->file);
+	return find_tasks(list->file, NULL) * MAXLINE;
 }
 
-void get_tasks(Todo *list, char tasks[][MAXLINE])
+void get_tasks(Todo *list, void *tasks)
 {
-	seek_tasks(list);
-	for (int i = 0; i < list->length; i++)
-		fscanf_s(list->file, "%*d. %[^\n]", tasks[i], sizeof tasks[i]);
+	list->tasks = (char (*)[MAXLINE]) tasks;
+	list->length = find_tasks(list->file, list->tasks);
 
-	list->tasks = tasks;
+	/* Print formatted tasks to file */
+	write_header(list, list->length);
+
+	for (int i = 0; i < list->length; i++)
+		fprint_task(list, i+1, list->tasks[i]);
 }
 
 void add_task(Todo *list, char *task)
