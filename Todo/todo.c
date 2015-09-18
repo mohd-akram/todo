@@ -12,9 +12,9 @@ void write_header(Todo *list, int n)
 		freopen_s(&list->file, list->filename, "w+", list->file);
 
 	fprintf(list->file,
-			"Todo\n"
-			"----\n\n"
-			"%d task%s\n\n", n, n != 1 ? "s" : "");
+		"Todo\n"
+		"----\n\n"
+		"%d task%s\n\n", n, n != 1 ? "s" : "");
 }
 
 static
