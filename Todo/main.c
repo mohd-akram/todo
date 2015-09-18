@@ -23,6 +23,8 @@ int main(int argc, char *argv[])
 	else if (argc == 4)
 		if (strcmp(argv[1], "-e") == 0)
 			edit_task(&list, atoi(argv[2]), argv[3]);
+		else if (strcmp(argv[1], "-m") == 0)
+			move_task(&list, atoi(argv[2]), atoi(argv[3]));
 
 	/* Print tasks and cleanup */
 	print_tasks(&list);

@@ -96,6 +96,21 @@ void edit_task(Todo *list, int task_no, char *task)
 			i+1 == task_no ? task : list->tasks[i]);
 }
 
+void move_task(Todo *list, int from, int to)
+{
+	if (from < 1 || from > list->length || to < 1 || to > list->length)
+		return;
+
+	write_header(list, list->length);
+
+	int len = list->length;
+	for (int i = 0, num = 1; i < len; i++, num++) {
+		if (i == from - 1) ++i, ++len;
+		if (num == to) --i, --len;
+		fprint_task(list, num, list->tasks[num == to ? from - 1 : i]);
+	}
+}
+
 void remove_task(Todo *list, int task_no)
 {
 	if (task_no < 1 || task_no > list->length)
