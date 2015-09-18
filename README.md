@@ -14,6 +14,10 @@ To add a new task:
 
     todo "Buy milk"
 
-To remove a task, use the `-r` option followed by the task number:
+To edit a task:
+
+    todo -e 1 "Buy more milk"
+
+To remove a task:
 
     todo -r 1

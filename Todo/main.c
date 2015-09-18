@@ -16,10 +16,13 @@ int main(int argc, char *argv[])
 	/* Parse and process arguments */
 	if (argc == 2)
 		add_task(&list, argv[1]);
-	else if (argc > 2)
-		for (int i = 1; i < argc - 1; i++)
-			if (strcmp(argv[i], "-r") == 0)
-				remove_task(&list, atoi(argv[i+1]));
+	else if (argc == 3) {
+		if (strcmp(argv[1], "-r") == 0)
+			remove_task(&list, atoi(argv[2]));
+	}
+	else if (argc == 4)
+		if (strcmp(argv[1], "-e") == 0)
+			edit_task(&list, atoi(argv[2]), argv[3]);
 
 	/* Print tasks and cleanup */
 	print_tasks(&list);

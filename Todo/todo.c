@@ -84,9 +84,20 @@ void add_task(Todo *list, char *task)
 	fprint_task(list, list->length + 1, task);
 }
 
+void edit_task(Todo *list, int task_no, char *task)
+{
+	if (task_no < 1 || task_no > list->length)
+		return;
+
+	write_header(list, list->length);
+
+	for (int i = 0; i < list->length; i++)
+		fprint_task(list, i+1,
+			i+1 == task_no ? task : list->tasks[i]);
+}
+
 void remove_task(Todo *list, int task_no)
 {
-	/* Task numbering starts from 1 */
 	if (task_no < 1 || task_no > list->length)
 		return;
 
