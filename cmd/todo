@@ -4,6 +4,6 @@
 folder=~
 
 dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-pushd $folder
+pushd $folder > /dev/null
 "$dir/../bin/todo" "$@"
-popd
+popd > /dev/null
