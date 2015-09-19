@@ -30,3 +30,7 @@ To mark a task:
 To remove a task:
 
     todo -r 1
+
+Help:
+
+    todo -h

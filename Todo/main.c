@@ -16,6 +16,7 @@ char get_option(char *arg)
 		case 'e':
 		case 'm':
 		case 'r':
+		case 'h':
 			return arg[1];
 		}
 	return 0;
@@ -32,10 +33,13 @@ int main(int argc, char *argv[])
 	get_tasks(&list, tasks);
 
 	/* Parse and process arguments */
+	bool show_help = false;
 	bool processed = false;
 
-	if (argc == 2 && !is_option(argv[1])) {
-		if (argv[1][0] != '0') {
+	if (argc == 2) {
+		if (get_option(argv[1]) == 'h')
+			show_help = true;
+		else if (!is_option(argv[1]) && argv[1][0] != '0') {
 			int task_no = atoi(argv[1]);
 			if (task_no)
 				mark_task(&list, task_no),
@@ -88,7 +92,19 @@ int main(int argc, char *argv[])
 	}
 
 	/* Print tasks and cleanup */
-	print_tasks(&list);
+	if (show_help)
+		printf(
+			"usage:\n\t"
+			"show: todo\n\t"
+			"add: todo buy milk\n\t"
+			"     todo \"eat cookies\"\n\t"
+			"edit: todo -e 1 buy more milk\n\t"
+			"move: todo -m 2 1\n\t"
+			"mark: todo 1\n\t"
+			"remove: todo -r 1\n\n"
+		);
+	else
+		print_tasks(&list);
 	free(tasks);
 	fclose(list.file);
 
