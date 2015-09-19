@@ -1,0 +1,9 @@
+#!/bin/sh
+
+# this is where todo.txt will be stored
+folder=~
+
+dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
+pushd $folder
+"$dir/../bin/todo" "$@"
+popd

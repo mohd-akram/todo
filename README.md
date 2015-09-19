@@ -38,4 +38,14 @@ Help:
 Build
 -----
 
-    clang --std=c11 main.c todo.c -o todo
+    mkdir bin
+    cd Todo
+    clang --std=c11 main.c todo.c -o ../bin/todo
+
+Install
+-------
+
+To install globally, add the `cmd` folder to your path.
+
+You can change where `todo.txt` is stored by editing the script file
+in the `cmd` folder.
