@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 
 #include "todo.h"
@@ -32,13 +33,18 @@ char next_task(FILE *file)
 }
 
 static
-int find_tasks(FILE *file, struct task *tasks)
+int find_tasks(FILE *file, struct task *tasks, int *done)
 {
+	if (done != NULL)
+		*done = 0;
+
 	int i = 0;
 	char mark;
 
 	rewind(file);
 	while (mark = next_task(file)) {
+		if (done != NULL && mark == MARK_DONE)
+			++*done;
 		if (tasks != NULL) {
 			int res = fscanf_s(file, "%[^\n]",
 				tasks[i].text, sizeof tasks[i].text);
@@ -79,13 +85,13 @@ size_t todo_init(Todo *list, const char *filename)
 	if (list->file == NULL)
 		write_header(list);
 
-	return find_tasks(list->file, NULL) * sizeof *list->tasks;
+	return find_tasks(list->file, NULL, NULL) * sizeof *list->tasks;
 }
 
 void get_tasks(Todo *list, void *tasks)
 {
 	list->tasks = tasks;
-	list->length = find_tasks(list->file, list->tasks);
+	list->length = find_tasks(list->file, list->tasks, NULL);
 
 	/* Print formatted tasks to file */
 	write_header(list);
@@ -170,10 +176,11 @@ void remove_task(Todo *list, int task_no)
 
 void print_tasks(Todo *list)
 {
-	int count = find_tasks(list->file, NULL);
+	int done;
+	int count = find_tasks(list->file, NULL, &done);
 
 	printf(HEADER);
-	printf("%d task%s\n\n", count, count == 1 ? "" : "s");
+	printf("%d/%d task%s\n\n", done, count, count == 1 ? "" : "s");
 
 	char mark;
 	int num = 1;
