@@ -73,12 +73,16 @@ int main(int argc, char *argv[])
 		for (int i = start; i < argc; i++)
 			total_len += strlen(argv[i]);
 
-		if (total_len < MAXLINE) {
-			char *task = malloc(MAXLINE);
+		if (total_len <= MAXSTRLEN) {
+			char *task = malloc(MAXLEN);
 			char *p = task;
 			for (int i = start; i < argc; i++) {
 				int len = strlen(argv[i]);
+#ifdef _MSC_VER
 				strcpy_s(p, len + 1, argv[i]);
+#else
+				strcpy(p, argv[i]);
+#endif
 				p += len;
 				if (i < argc - 1)
 					*p = ' ';

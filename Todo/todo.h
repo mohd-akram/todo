@@ -1,6 +1,7 @@
 #include <stdio.h>
 
-#define MAXLINE 255
+#define MAXSTRLEN 254
+#define MAXLEN (MAXSTRLEN + 1)
 
 typedef struct todo {
 	int length;
@@ -8,7 +9,7 @@ typedef struct todo {
 	FILE *file;
 	struct task {
 		char mark;
-		char text[MAXLINE];
+		char text[MAXLEN];
 	} *tasks;
 } Todo;
 

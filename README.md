@@ -34,3 +34,8 @@ To remove a task:
 Help:
 
     todo -h
+
+Build
+-----
+
+    gcc --std=c11 main.c todo.c -o todo

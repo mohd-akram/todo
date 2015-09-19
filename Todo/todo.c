@@ -11,6 +11,9 @@
 #define MARK_NOT_DONE ' '
 #define MARK_DONE 'x'
 
+#define TO_STR_(x) #x
+#define TO_STR(x) TO_STR_(x)
+
 static
 char next_task(FILE *file)
 {
@@ -19,7 +22,11 @@ char next_task(FILE *file)
 		int res;
 		char x;
 
+#ifdef _MSC_VER
 		res = fscanf_s(file, "- [%c] ", &x, 1);
+#else
+		res = fscanf(file, "- [%c] ", &x);
+#endif
 		if (res == 1 && (x == MARK_NOT_DONE || x == MARK_DONE))
 			return x;
 
@@ -42,12 +49,17 @@ int find_tasks(FILE *file, struct task *tasks, int *done)
 	char mark;
 
 	rewind(file);
-	while (mark = next_task(file)) {
+	while ((mark = next_task(file))) {
 		if (done != NULL && mark == MARK_DONE)
 			++*done;
 		if (tasks != NULL) {
-			int res = fscanf_s(file, "%[^\n]",
+#ifdef _MSC_VER
+			int res = fscanf_s(file, "%" TO_STR(MAXSTRLEN) "[^\n]",
 				tasks[i].text, sizeof tasks[i].text);
+#else
+			int res = fscanf(file, "%" TO_STR(MAXSTRLEN) "[^\n]",
+				tasks[i].text);
+#endif
 			if (res != 1)
 				tasks[i].text[0] = '\0';
 			tasks[i].mark = mark;
@@ -62,9 +74,17 @@ static
 void write_header(Todo *list)
 {
 	if (list->file == NULL)
+#ifdef _MSC_VER
 		fopen_s(&list->file, list->filename, "w+");
+#else
+		list->file = fopen(list->filename, "w+");
+#endif
 	else
+#ifdef _MSC_VER
 		freopen_s(&list->file, list->filename, "w+", list->file);
+#else
+		list->file = freopen(list->filename, "w+", list->file);
+#endif
 
 	fprintf(list->file, HEADER);
 }
@@ -78,8 +98,11 @@ void write_task(Todo *list, char mark, char *task)
 size_t todo_init(Todo *list, const char *filename)
 {
 	list->filename = filename;
-
+#ifdef _MSC_VER
 	fopen_s(&list->file, filename, "r");
+#else
+	list->file = fopen(filename, "r");
+#endif
 
 	/* Create a new file if it doesn't exist */
 	if (list->file == NULL)
@@ -102,7 +125,7 @@ void get_tasks(Todo *list, void *tasks)
 
 void add_task(Todo *list, char *task)
 {
-	if (strlen(task) >= MAXLINE)
+	if (strlen(task) > MAXSTRLEN)
 		return;
 
 	write_header(list);
@@ -116,7 +139,7 @@ void add_task(Todo *list, char *task)
 
 void edit_task(Todo *list, int task_no, char *task)
 {
-	if (task_no < 1 || task_no > list->length || strlen(task) >= MAXLINE)
+	if (task_no < 1 || task_no > list->length || strlen(task) > MAXSTRLEN)
 		return;
 
 	write_header(list);
@@ -186,7 +209,7 @@ void print_tasks(Todo *list)
 	int num = 1;
 
 	rewind(list->file);
-	while (mark = next_task(list->file)) {
+	while ((mark = next_task(list->file))) {
 		printf("%2d. [%c] ", num++, mark);
 		int c;
 		while ((c = getc(list->file)) != EOF && c != '\n')
