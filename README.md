@@ -38,4 +38,4 @@ Help:
 Build
 -----
 
-    gcc --std=c11 main.c todo.c -o todo
+    clang --std=c11 main.c todo.c -o todo
