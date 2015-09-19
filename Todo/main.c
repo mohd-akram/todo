@@ -60,8 +60,9 @@ int main(int argc, char *argv[])
 	}
 
 	/* Concatenate arguments when adding or editing a task */
+	bool is_add = argc > 2 && !is_option(argv[1]);
 	bool is_edit = argc > 4 && get_option(argv[1]) == 'e';
-	if (!processed && ((argc > 2 && !is_option(argv[1])) || is_edit)) {
+	if (!processed && (is_add || is_edit)) {
 		int start = is_edit ? 3 : 1;
 
 		int total_len = 0;
