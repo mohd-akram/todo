@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 			"edit: todo -e 1 buy more milk\n\t"
 			"move: todo -m 2 1\n\t"
 			"mark: todo 1\n\t"
-			"remove: todo -r 1\n\n"
+			"remove: todo -r 1\n"
 		);
 	else
 		print_tasks(&list);
