@@ -47,5 +47,8 @@ Install
 
 To install globally, add the `cmd` folder to your path.
 
-You can change where `todo.md` is stored by editing the script file
+You can change where the global `todo.md` is stored by editing the script file
 in the `cmd` folder.
+
+If a `todo.md` file exists in the current directory, it will be used instead of
+the global one.
