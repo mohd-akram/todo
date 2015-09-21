@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 {
 	/* Create todo list */
 	Todo list;
-	size_t size = todo_init(&list, "todo.txt");
+	size_t size = todo_init(&list, "todo.md");
 
 	/* Load existing tasks */
 	void *tasks = malloc(size);

@@ -1,9 +1,13 @@
 #!/bin/sh
 
-# this is where todo.txt will be stored
+# this is where todo.md will be stored if the file doesn't exist locally
 folder=~
 
 dir=$(cd -P -- "$(dirname -- "$0")" && pwd -P)
-pushd $folder > /dev/null
-"$dir/../bin/todo" "$@"
-popd > /dev/null
+if [ -f todo.md ]; then
+  "$dir/../bin/todo" "$@"
+else
+  pushd $folder > /dev/null
+  "$dir/../bin/todo" "$@"
+  popd > /dev/null
+fi
