@@ -53,14 +53,7 @@ int find_tasks(FILE *file, struct task *tasks, int *done)
 		if (done != NULL && mark == MARK_DONE)
 			++*done;
 		if (tasks != NULL) {
-#ifdef _MSC_VER
-			int res = fscanf_s(file, "%" TO_STR(MAXSTRLEN) "[^\n]",
-				tasks[i].text, sizeof tasks[i].text);
-#else
-			int res = fscanf(file, "%" TO_STR(MAXSTRLEN) "[^\n]",
-				tasks[i].text);
-#endif
-			if (res != 1)
+			if (fgets(tasks[i].text, sizeof tasks[i].text, file) == NULL)
 				tasks[i].text[0] = '\0';
 			tasks[i].mark = mark;
 		}
