@@ -35,6 +35,8 @@ Help:
 
     todo -h
 
+You can change the header by editing the first line of the `todo.md` file.
+
 Build
 -----
 
