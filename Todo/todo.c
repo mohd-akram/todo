@@ -118,7 +118,7 @@ void get_tasks(Todo *list, void *tasks)
 
 void add_task(Todo *list, char *task)
 {
-	if (strlen(task) > MAXSTRLEN)
+	if (strlen(task) >= MAXLEN)
 		return;
 
 	write_header(list);
@@ -132,7 +132,7 @@ void add_task(Todo *list, char *task)
 
 void edit_task(Todo *list, int task_no, char *task)
 {
-	if (task_no < 1 || task_no > list->length || strlen(task) > MAXSTRLEN)
+	if (task_no < 1 || task_no > list->length || strlen(task) >= MAXLEN)
 		return;
 
 	write_header(list);

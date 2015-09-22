@@ -1,7 +1,6 @@
 #include <stdio.h>
 
-#define MAXSTRLEN 254
-#define MAXLEN (MAXSTRLEN + 1)
+#define MAXLEN 255
 
 typedef struct todo {
 	int length;

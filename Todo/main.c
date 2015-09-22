@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 		for (int i = start; i < argc; i++)
 			total_len += strlen(argv[i]);
 
-		if (total_len <= MAXSTRLEN) {
+		if (total_len < MAXLEN) {
 			char *task = malloc(MAXLEN);
 			char *p = task;
 			for (int i = start; i < argc; i++) {
