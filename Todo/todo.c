@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -125,19 +126,27 @@ size_t todo_init(Todo *list, const char *filename)
 	list->file = fopen(filename, "r");
 #endif
 
+	bool has_header = true;
+
 	/* Add a default header if one doesn't exist */
-	if (list->file == NULL || is_task(list->file)) {
+	if (list->file == NULL || is_task(list->file))
+		has_header = false;
+	else {
+		read_line(list->header, sizeof list->header, list->file);
+		if (strlen(list->header) == 0)
+			has_header = false;
+	}
+
+	if (!has_header)
 #ifdef _MSC_VER
 		strcpy_s(list->header, sizeof list->header, "Todo");
 #else
 		strcpy(list->header, "Todo");
 #endif
-		/* Create a new file if it doesn't exist */
-		if (list->file == NULL)
-			write_header(list);
-	}
-	else
-		read_line(list->header, sizeof list->header, list->file);
+
+	/* Create a new file if it doesn't exist */
+	if (list->file == NULL)
+		write_header(list);
 
 	return find_tasks(list->file, NULL, NULL) * sizeof *list->tasks;
 }
