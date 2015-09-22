@@ -6,6 +6,7 @@ typedef struct todo {
 	int length;
 	const char *filename;
 	FILE *file;
+	char header[MAXLEN];
 	struct task {
 		char mark;
 		char text[MAXLEN];

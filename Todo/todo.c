@@ -4,15 +4,31 @@
 
 #include "todo.h"
 
-#define HEADER \
-	"Todo\n" \
-	"----\n\n"
-
 #define MARK_NOT_DONE ' '
 #define MARK_DONE 'x'
 
-#define TO_STR_(x) #x
-#define TO_STR(x) TO_STR_(x)
+static
+void read_line(char *dst, int size, FILE *file)
+{
+	if (fgets(dst, size, file) == NULL)
+		dst[0] = '\0';
+	else {
+		int i = strlen(dst) - 1;
+		if (dst[i] == '\n')
+			dst[i] = '\0';
+	}
+}
+
+static
+void print_line(FILE *file)
+{
+	int c;
+	while ((c = getc(file)) != EOF) {
+		putchar(c);
+		if (c == '\n')
+			break;
+	}
+}
 
 static
 char next_task(FILE *file)
@@ -53,8 +69,7 @@ int find_tasks(FILE *file, struct task *tasks, int *done)
 		if (done != NULL && mark == MARK_DONE)
 			++*done;
 		if (tasks != NULL) {
-			if (fgets(tasks[i].text, sizeof tasks[i].text, file) == NULL)
-				tasks[i].text[0] = '\0';
+			read_line(tasks[i].text, sizeof tasks[i].text, file);
 			tasks[i].mark = mark;
 		}
 		++i;
@@ -79,7 +94,13 @@ void write_header(Todo *list)
 		list->file = freopen(list->filename, "w+", list->file);
 #endif
 
-	fprintf(list->file, HEADER);
+	fprintf(list->file, "%s\n", list->header);
+
+	/* Print header underline */
+	int len = strlen(list->header);
+	for (int i = 0; i < len; i++)
+		fputc('-', list->file);
+	fputc('\n', list->file);
 }
 
 static
@@ -98,8 +119,16 @@ size_t todo_init(Todo *list, const char *filename)
 #endif
 
 	/* Create a new file if it doesn't exist */
-	if (list->file == NULL)
+	if (list->file == NULL) {
+#ifdef _MSC_VER
+		strcpy_s(list->header, sizeof list->header, "Todo");
+#else
+		strcpy(list->header, "Todo");
+#endif
 		write_header(list);
+	}
+	else
+		read_line(list->header, sizeof list->header, list->file);
 
 	return find_tasks(list->file, NULL, NULL) * sizeof *list->tasks;
 }
@@ -195,18 +224,18 @@ void print_tasks(Todo *list)
 	int done;
 	int count = find_tasks(list->file, NULL, &done);
 
-	printf(HEADER);
+	rewind(list->file);
+
+	/* Print the header (first two lines) */
+	for (int i = 0; i < 2; i++)
+		print_line(list->file);
 	printf("%d/%d task%s\n\n", done, count, count == 1 ? "" : "s");
 
 	char mark;
 	int num = 1;
-
-	rewind(list->file);
+	
 	while ((mark = next_task(list->file))) {
 		printf("%2d. [%c] ", num++, mark);
-		int c;
-		while ((c = getc(list->file)) != EOF && c != '\n')
-			putchar(c);
-		putchar('\n');
+		print_line(list->file);
 	}
 }
