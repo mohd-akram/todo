@@ -244,8 +244,8 @@ void print_tasks(Todo *list)
 
 	rewind(list->file);
 
-	/* Print the header (first two lines) */
-	for (int i = 0; i < 2; i++)
+	/* Print the header (first three lines) */
+	for (int i = 0; i < 3; i++)
 		print_line(list->file);
 	printf("%d/%d task%s\n\n", done, count, count == 1 ? "" : "s");
 
