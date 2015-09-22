@@ -36,9 +36,9 @@ char is_task(FILE *file)
 {
 	char x;
 #ifdef _MSC_VER
-	int res = fscanf_s(file, "- [%c] ", &x, 1);
+	int res = fscanf_s(file, "- [%c]%*[ ]", &x, 1);
 #else
-	int res = fscanf(file, "- [%c] ", &x);
+	int res = fscanf(file, "- [%c]%*[ ]", &x);
 #endif
 	if (res == 1 && (x == MARK_NOT_DONE || x == MARK_DONE))
 		return x;
