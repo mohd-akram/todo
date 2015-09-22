@@ -31,19 +31,26 @@ void print_line(FILE *file)
 }
 
 static
+char is_task(FILE *file)
+{
+	char x;
+#ifdef _MSC_VER
+	int res = fscanf_s(file, "- [%c] ", &x, 1);
+#else
+	int res = fscanf(file, "- [%c] ", &x);
+#endif
+	if (res == 1 && (x == MARK_NOT_DONE || x == MARK_DONE))
+		return x;
+	return 0;
+}
+
+static
 char next_task(FILE *file)
 {
 	while (!feof(file)) {
 		/* Check if line contains a todo item */
-		int res;
 		char x;
-
-#ifdef _MSC_VER
-		res = fscanf_s(file, "- [%c] ", &x, 1);
-#else
-		res = fscanf(file, "- [%c] ", &x);
-#endif
-		if (res == 1 && (x == MARK_NOT_DONE || x == MARK_DONE))
+		if ((x = is_task(file)))
 			return x;
 
 		/* Go to end of line */
@@ -100,7 +107,7 @@ void write_header(Todo *list)
 	int len = strlen(list->header);
 	for (int i = 0; i < len; i++)
 		fputc('-', list->file);
-	fputc('\n', list->file);
+	fprintf(list->file, "\n\n");
 }
 
 static
@@ -118,14 +125,16 @@ size_t todo_init(Todo *list, const char *filename)
 	list->file = fopen(filename, "r");
 #endif
 
-	/* Create a new file if it doesn't exist */
-	if (list->file == NULL) {
+	/* Add a default header if one doesn't exist */
+	if (list->file == NULL || is_task(list->file)) {
 #ifdef _MSC_VER
 		strcpy_s(list->header, sizeof list->header, "Todo");
 #else
 		strcpy(list->header, "Todo");
 #endif
-		write_header(list);
+		/* Create a new file if it doesn't exist */
+		if (list->file == NULL)
+			write_header(list);
 	}
 	else
 		read_line(list->header, sizeof list->header, list->file);
