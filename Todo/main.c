@@ -45,7 +45,8 @@ int main(int argc, char *argv[])
 	bool is_add = argc > 1 && !is_option(argv[1]);
 	bool is_edit = argc > 3 && get_option(argv[1]) == 'e';
 
-	if (argc == 2 && (task_no = get_task_no(argv[1])) != -1)
+	if (argc == 2 && !is_option(argv[1]) &&
+		(task_no = get_task_no(argv[1])) != -1)
 		mark_task(&list, task_no);
 	else if (argc == 3 && get_option(argv[1]) == 'r')
 		remove_task(&list, atoi(argv[2]));
