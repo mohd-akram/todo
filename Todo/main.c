@@ -7,7 +7,7 @@
 
 bool is_option(char *arg)
 {
-	return strlen(arg) == 2 && arg[0] == '-';
+	return strlen(arg) == 2 && arg[0] == '-' && isalpha(arg[1]);
 }
 
 char get_option(char *arg)
