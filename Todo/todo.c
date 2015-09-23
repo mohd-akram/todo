@@ -163,10 +163,10 @@ void get_tasks(Todo *list, void *tasks)
 		write_task(list, list->tasks[i].mark, list->tasks[i].text);
 }
 
-void add_task(Todo *list, char *task)
+size_t add_task(Todo *list, char *task)
 {
 	if (strlen(task) >= MAXLEN)
-		return;
+		return 0;
 
 	write_header(list);
 
@@ -175,6 +175,8 @@ void add_task(Todo *list, char *task)
 
 	/* Add new task */
 	write_task(list, MARK_NOT_DONE, task);
+
+	return (list->length + 1) * sizeof *list->tasks;
 }
 
 void edit_task(Todo *list, int task_no, char *task)
@@ -251,7 +253,7 @@ void print_tasks(Todo *list)
 
 	char mark;
 	int num = 1;
-	
+
 	while ((mark = next_task(list->file))) {
 		printf("%2d. [%c] ", num++, mark);
 		print_line(list->file);

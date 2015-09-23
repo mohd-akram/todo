@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "todo.h"
 
@@ -16,10 +17,14 @@ char get_option(char *arg)
 		case 'e':
 		case 'm':
 		case 'r':
-		case 'h':
 			return arg[1];
 		}
 	return 0;
+}
+
+int get_task_no(char *arg)
+{
+	return isdigit(arg[0]) ? atoi(arg) : -1;
 }
 
 int main(int argc, char *argv[])
@@ -33,15 +38,13 @@ int main(int argc, char *argv[])
 	get_tasks(&list, tasks);
 
 	/* Parse and process arguments */
-	bool show_help = false;
 	bool processed = false;
 
+	int task_no;
+
 	if (argc == 2) {
-		if (get_option(argv[1]) == 'h')
-			show_help = true;
-		else if (!is_option(argv[1]) && argv[1][0] != '0') {
-			int task_no = atoi(argv[1]);
-			if (task_no)
+		if (!is_option(argv[1])) {
+			if ((task_no = get_task_no(argv[1])) != -1)
 				mark_task(&list, task_no),
 				processed = true;
 			else
@@ -53,6 +56,15 @@ int main(int argc, char *argv[])
 		if (get_option(argv[1]) == 'r')
 			remove_task(&list, atoi(argv[2])),
 			processed = true;
+		else if ((task_no = get_task_no(argv[1])) != -1) {
+			if ((size = add_task(&list, argv[2]))) {
+				tasks = realloc(tasks, size);
+				get_tasks(&list, tasks);
+				move_task(&list, list.length, task_no),
+				processed = true;
+			}
+		}
+
 	}
 	else if (argc == 4) {
 		if (get_option(argv[1]) == 'e')
@@ -66,37 +78,42 @@ int main(int argc, char *argv[])
 	/* Concatenate arguments when adding or editing a task */
 	bool is_add = argc > 2 && !is_option(argv[1]);
 	bool is_edit = argc > 4 && get_option(argv[1]) == 'e';
+
 	if (!processed && (is_add || is_edit)) {
-		int start = is_edit ? 3 : 1;
+		task_no = get_task_no(argv[1]);
+		int start = is_edit ? 3 : task_no != -1 ? 2 : 1;
 
 		int total_len = 0;
 		for (int i = start; i < argc; i++)
-			total_len += strlen(argv[i]);
+			total_len += strlen(argv[i]) + 1;
 
-		if (total_len < MAXLEN) {
-			char *task = malloc(MAXLEN);
-			char *p = task;
-			for (int i = start; i < argc; i++) {
-				int len = strlen(argv[i]);
+		char *task = malloc(total_len);
+		task[0] = '\0';
+		for (int i = start; i < argc; i++) {
 #ifdef _MSC_VER
-				strcpy_s(p, len + 1, argv[i]);
+			strcat_s(task, total_len, argv[i]);
 #else
-				strcpy(p, argv[i]);
+			strcat(task, argv[i]);
 #endif
-				p += len;
-				if (i < argc - 1)
-					*p = ' ';
-				++p;
-			}
-			if (is_edit)
-				edit_task(&list, atoi(argv[2]), task);
-			else
-				add_task(&list, task);
+			if (i < argc - 1)
+#ifdef _MSC_VER
+				strcat_s(task, total_len, " ");
+#else
+				strcat(task, " ");
+#endif
+		}
+		
+		if (is_edit)
+			edit_task(&list, atoi(argv[2]), task);
+		else if ((size = add_task(&list, task)) && task_no != -1) {
+			tasks = realloc(tasks, size);
+			get_tasks(&list, tasks);
+			move_task(&list, list.length, task_no);
 		}
 	}
 
 	/* Print tasks and cleanup */
-	if (show_help)
+	if (argc > 1 && !processed)
 		printf(
 			"usage:\n\t"
 			"show: todo\n\t"
