@@ -107,7 +107,7 @@ void write_header(Todo *list)
 	/* Print header underline */
 	int len = strlen(list->header);
 	for (int i = 0; i < len; i++)
-		fputc('-', list->file);
+		putc('-', list->file);
 	fprintf(list->file, "\n\n");
 }
 
