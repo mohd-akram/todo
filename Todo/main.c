@@ -38,46 +38,22 @@ int main(int argc, char *argv[])
 	get_tasks(&list, tasks);
 
 	/* Parse and process arguments */
-	bool processed = false;
+	bool processed = true;
 
 	int task_no;
 
-	if (argc == 2) {
-		if (!is_option(argv[1])) {
-			if ((task_no = get_task_no(argv[1])) != -1)
-				mark_task(&list, task_no),
-				processed = true;
-			else
-				add_task(&list, argv[1]),
-				processed = true;
-		}
-	}
-	else if (argc == 3) {
-		if (get_option(argv[1]) == 'r')
-			remove_task(&list, atoi(argv[2])),
-			processed = true;
-		else if ((task_no = get_task_no(argv[1])) != -1) {
-			if ((size = add_task(&list, argv[2]))) {
-				tasks = realloc(tasks, size);
-				get_tasks(&list, tasks);
-				move_task(&list, list.length, task_no),
-				processed = true;
-			}
-		}
-
-	}
-	else if (argc == 4) {
-		if (get_option(argv[1]) == 'e')
-			edit_task(&list, atoi(argv[2]), argv[3]),
-			processed = true;
-		else if (get_option(argv[1]) == 'm')
-			move_task(&list, atoi(argv[2]), atoi(argv[3])),
-			processed = true;
-	}
+	if (argc == 2 && (task_no = get_task_no(argv[1])) != -1)
+		mark_task(&list, task_no);
+	else if (argc == 3 && get_option(argv[1]) == 'r')
+		remove_task(&list, atoi(argv[2]));
+	else if (argc == 4 && get_option(argv[1]) == 'm')
+		move_task(&list, atoi(argv[2]), atoi(argv[3]));
+	else
+		processed = false;
 
 	/* Concatenate arguments when adding or editing a task */
-	bool is_add = argc > 2 && !is_option(argv[1]);
-	bool is_edit = argc > 4 && get_option(argv[1]) == 'e';
+	bool is_add = argc > 1 && !is_option(argv[1]);
+	bool is_edit = argc > 3 && get_option(argv[1]) == 'e';
 
 	if (!processed && (is_add || is_edit)) {
 		task_no = get_task_no(argv[1]);
@@ -114,8 +90,10 @@ int main(int argc, char *argv[])
 		processed = true;
 	}
 
-	/* Print tasks and cleanup */
-	if (argc > 1 && !processed)
+	/* Print tasks/help */
+	if (processed)
+		print_tasks(&list);
+	else
 		printf(
 			"usage:\n\t"
 			"show: todo\n\t"
@@ -126,8 +104,8 @@ int main(int argc, char *argv[])
 			"mark: todo 1\n\t"
 			"remove: todo -r 1\n"
 		);
-	else
-		print_tasks(&list);
+
+	/* Cleanup */
 	free(tasks);
 	fclose(list.file);
 
