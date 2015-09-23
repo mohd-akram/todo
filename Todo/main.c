@@ -22,9 +22,13 @@ char get_option(char *arg)
 	return 0;
 }
 
-int get_task_no(char *arg)
+bool get_task_no(char *arg, int *task_no)
 {
-	return isdigit(arg[0]) ? atoi(arg) : -1;
+	char *end;
+	int num = strtol(arg, &end, 10);
+	if (*end == '\0')
+		return *task_no = num;
+	return false;
 }
 
 int main(int argc, char *argv[])
@@ -45,8 +49,7 @@ int main(int argc, char *argv[])
 	bool is_add = argc > 1 && !is_option(argv[1]);
 	bool is_edit = argc > 3 && get_option(argv[1]) == 'e';
 
-	if (argc == 2 && !is_option(argv[1]) &&
-		(task_no = get_task_no(argv[1])) != -1)
+	if (argc == 2 && get_task_no(argv[1], &task_no))
 		mark_task(&list, task_no);
 	else if (argc == 3 && get_option(argv[1]) == 'r')
 		remove_task(&list, atoi(argv[2]));
@@ -54,8 +57,8 @@ int main(int argc, char *argv[])
 		move_task(&list, atoi(argv[2]), atoi(argv[3]));
 	else if (is_add || is_edit) {
 		/* Concatenate arguments when adding or editing a task */
-		task_no = get_task_no(argv[1]);
-		int start = is_edit ? 3 : task_no != -1 ? 2 : 1;
+		bool has_num = get_task_no(argv[1], &task_no);
+		int start = is_edit ? 3 : has_num ? 2 : 1;
 
 		int total_len = 0;
 		for (int i = start; i < argc; i++)
@@ -79,7 +82,7 @@ int main(int argc, char *argv[])
 
 		if (is_edit)
 			edit_task(&list, atoi(argv[2]), task);
-		else if ((size = add_task(&list, task)) && task_no != -1) {
+		else if ((size = add_task(&list, task)) && has_num) {
 			tasks = realloc(tasks, size);
 			get_tasks(&list, tasks);
 			move_task(&list, list.length, task_no);
