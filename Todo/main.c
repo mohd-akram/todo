@@ -38,9 +38,12 @@ int main(int argc, char *argv[])
 	get_tasks(&list, tasks);
 
 	/* Parse and process arguments */
-	bool processed = true;
+	bool error = false;
 
 	int task_no;
+
+	bool is_add = argc > 1 && !is_option(argv[1]);
+	bool is_edit = argc > 3 && get_option(argv[1]) == 'e';
 
 	if (argc == 2 && (task_no = get_task_no(argv[1])) != -1)
 		mark_task(&list, task_no);
@@ -48,14 +51,8 @@ int main(int argc, char *argv[])
 		remove_task(&list, atoi(argv[2]));
 	else if (argc == 4 && get_option(argv[1]) == 'm')
 		move_task(&list, atoi(argv[2]), atoi(argv[3]));
-	else
-		processed = false;
-
-	/* Concatenate arguments when adding or editing a task */
-	bool is_add = argc > 1 && !is_option(argv[1]);
-	bool is_edit = argc > 3 && get_option(argv[1]) == 'e';
-
-	if (!processed && (is_add || is_edit)) {
+	else if (is_add || is_edit) {
+		/* Concatenate arguments when adding or editing a task */
 		task_no = get_task_no(argv[1]);
 		int start = is_edit ? 3 : task_no != -1 ? 2 : 1;
 
@@ -78,7 +75,7 @@ int main(int argc, char *argv[])
 				strcat(task, " ");
 #endif
 		}
-		
+
 		if (is_edit)
 			edit_task(&list, atoi(argv[2]), task);
 		else if ((size = add_task(&list, task)) && task_no != -1) {
@@ -86,14 +83,12 @@ int main(int argc, char *argv[])
 			get_tasks(&list, tasks);
 			move_task(&list, list.length, task_no);
 		}
-
-		processed = true;
 	}
+	else if (argc > 1)
+		error = true;
 
 	/* Print tasks/help */
-	if (processed)
-		print_tasks(&list);
-	else
+	if (error)
 		printf(
 			"usage:\n\t"
 			"show: todo\n\t"
@@ -104,6 +99,8 @@ int main(int argc, char *argv[])
 			"mark: todo 1\n\t"
 			"remove: todo -r 1\n"
 		);
+	else
+		print_tasks(&list);
 
 	/* Cleanup */
 	free(tasks);
