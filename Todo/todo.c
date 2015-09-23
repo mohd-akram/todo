@@ -216,7 +216,7 @@ void move_task(Todo *list, int from, int to)
 
 	int len = list->length;
 	for (int i = 0, num = 1; i < len; i++, num++) {
-		if (i == from - 1) ++i, ++len;
+		if (i+1 == from) ++i, ++len;
 		if (num == to) --i, --len;
 		int idx = num == to ? from - 1 : i;
 		write_task(list, list->tasks[idx].mark, list->tasks[idx].text);
