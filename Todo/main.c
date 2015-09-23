@@ -110,6 +110,8 @@ int main(int argc, char *argv[])
 			get_tasks(&list, tasks);
 			move_task(&list, list.length, task_no);
 		}
+
+		processed = true;
 	}
 
 	/* Print tasks and cleanup */
