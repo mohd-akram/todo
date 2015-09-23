@@ -95,8 +95,9 @@ int main(int argc, char *argv[])
 			"show: todo\n\t"
 			"add: todo buy milk\n\t"
 			"     todo \"eat cookies\"\n\t"
-			"edit: todo -e 1 buy more milk\n\t"
-			"move: todo -m 2 1\n\t"
+			"     todo 1 pour milk\n\t"
+			"edit: todo -e 2 buy more milk\n\t"
+			"move: todo -m 3 2\n\t"
 			"mark: todo 1\n\t"
 			"remove: todo -r 1\n"
 		);

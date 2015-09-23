@@ -14,14 +14,15 @@ To add a new task:
 
     todo buy milk
     todo "eat cookies"
+    todo 1 pour milk
 
 To edit a task:
 
-    todo -e 1 buy more milk
+    todo -e 2 buy more milk
 
 To move a task:
 
-    todo -m 2 1
+    todo -m 3 2
 
 To mark a task:
 
