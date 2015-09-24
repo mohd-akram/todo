@@ -26,8 +26,10 @@ bool get_task_no(char *arg, int *task_no)
 {
 	char *end;
 	int num = strtol(arg, &end, 10);
-	if (*end == '\0')
-		return *task_no = num;
+	if (*end == '\0') {
+		*task_no = num;
+		return true;
+	}
 	return false;
 }
 
