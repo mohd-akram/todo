@@ -43,7 +43,7 @@ Build
 
     mkdir bin
     cd Todo
-    clang --std=c11 main.c todo.c -o ../bin/todo
+    cc -std=c11 main.c todo.c -o ../bin/todo
 
 If you're using Visual Studio, open the solution and build Release.
 
