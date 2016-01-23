@@ -6,7 +6,5 @@ set folder=%USERPROFILE%\OneDrive\Documents
 if exist todo.md (
   "%~dp0\..\bin\todo" %*
 ) else (
-  pushd %folder%
-  "%~dp0\..\bin\todo" %*
-  popd
+  setlocal & cd %folder% && "%~dp0\..\bin\todo" %* & endlocal
 )
