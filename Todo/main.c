@@ -17,6 +17,7 @@ char get_option(char *arg)
 		case 'e':
 		case 'm':
 		case 'r':
+		case 's':
 			return arg[1];
 		}
 	return 0;
@@ -39,7 +40,7 @@ int main(int argc, char *argv[])
 
 	/* Load existing tasks */
 	void *tasks = malloc(size);
-	get_tasks(&list, tasks);
+	load_tasks(&list, tasks);
 
 	/* Parse and process arguments */
 	bool error = false;
@@ -53,6 +54,8 @@ int main(int argc, char *argv[])
 		mark_task(&list, task_no);
 	else if (argc == 3 && get_option(argv[1]) == 'r')
 		remove_task(&list, atoi(argv[2]));
+	else if (argc == 3 && get_option(argv[1]) == 's')
+		space_task(&list, atoi(argv[2]));
 	else if (argc == 4 && get_option(argv[1]) == 'm')
 		move_task(&list, atoi(argv[2]), atoi(argv[3]));
 	else if (is_add || is_edit) {
@@ -84,7 +87,7 @@ int main(int argc, char *argv[])
 			edit_task(&list, atoi(argv[2]), task);
 		else if ((size = add_task(&list, task)) && has_num) {
 			tasks = realloc(tasks, size);
-			get_tasks(&list, tasks);
+			load_tasks(&list, tasks);
 			move_task(&list, list.length, task_no);
 		}
 	}
@@ -102,7 +105,8 @@ int main(int argc, char *argv[])
 			"edit: todo -e 2 buy more milk\n\t"
 			"move: todo -m 3 2\n\t"
 			"mark: todo 1\n\t"
-			"remove: todo -r 1\n"
+			"remove: todo -r 1\n\t"
+			"space: todo -s 2\n"
 		);
 	else
 		print_tasks(&list);
@@ -111,5 +115,5 @@ int main(int argc, char *argv[])
 	free(tasks);
 	fclose(list.file);
 
-    return 0;
+	return 0;
 }

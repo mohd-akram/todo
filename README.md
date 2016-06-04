@@ -32,6 +32,10 @@ To remove a task:
 
     todo -r 1
 
+To add space before a task:
+
+    todo -s 2
+
 Help:
 
     todo -h
