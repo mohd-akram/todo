@@ -5,6 +5,9 @@
 
 #include "todo.h"
 
+#define TODO_ENV "TODO_DIR"
+#define TODO_FILE "todo.md"
+
 bool is_option(char *arg)
 {
 	return strlen(arg) == 2 && arg[0] == '-' && isalpha(arg[1]);
@@ -34,9 +37,45 @@ bool get_task_no(char *arg, int *task_no)
 
 int main(int argc, char *argv[])
 {
+	char *filename;
+
+	/* Check if a todo file exists in the current directory */
+	FILE *file;
+#ifdef _MSC_VER
+	fopen_s(&file, TODO_FILE, "r");
+#else
+	file = fopen(TODO_FILE, "r");
+#endif
+	if (file != NULL) fclose(file);
+
+	/* Check if the user has set a directory for the todo file */
+	size_t len;
+#ifdef _MSC_VER
+	char dir[_MAX_PATH - 12] = { 0 };
+	getenv_s(&len, &dir, _MAX_PATH - 12, TODO_ENV);
+#else
+	char *dir = getenv(TODO_ENV);
+	len = dir == NULL || *dir == '\0' ? 0 : strlen(dir) + 1;
+#endif
+	len += strlen(TODO_FILE) + 1;
+	filename = calloc(len, sizeof *filename);
+	if (file == NULL && dir != NULL && *dir != '\0')
+#ifdef _MSC_VER
+		strcat_s(filename, len, dir), strcat_s(filename, len, "\\");
+	strcat_s(filename, len, TODO_FILE);
+#else
+		strcat(filename, dir), strcat(filename, "/");
+	strcat(filename, TODO_FILE);
+#endif
+
 	/* Create todo list */
 	Todo list;
-	size_t size = todo_init(&list, "todo.md");
+	size_t size = todo_init(&list, filename);
+
+	if (size == -1) {
+		fprintf(stderr, "failed to open file %s\n", filename);
+		return EXIT_FAILURE;
+	}
 
 	/* Load existing tasks */
 	void *tasks = malloc(size);
@@ -90,6 +129,7 @@ int main(int argc, char *argv[])
 			load_tasks(&list, tasks);
 			move_task(&list, list.length, task_no);
 		}
+		free(task);
 	}
 	else if (argc > 1)
 		error = true;
@@ -114,6 +154,7 @@ int main(int argc, char *argv[])
 	/* Cleanup */
 	free(tasks);
 	fclose(list.file);
+	free(filename);
 
 	return 0;
 }

@@ -95,7 +95,7 @@ int find_tasks(FILE *file, struct task *tasks, int *done)
 }
 
 static
-void write_header(Todo *list)
+bool write_header(Todo *list)
 {
 	if (list->file == NULL)
 #ifdef _MSC_VER
@@ -110,6 +110,9 @@ void write_header(Todo *list)
 		list->file = freopen(list->filename, "w+", list->file);
 #endif
 
+	if (list->file == NULL)
+		return false;
+
 	fprintf(list->file, "%s\n", list->header);
 
 	/* Print header underline */
@@ -117,6 +120,8 @@ void write_header(Todo *list)
 	for (int i = 0; i < len; i++)
 		putc('-', list->file);
 	fprintf(list->file, "\n");
+
+	return true;
 }
 
 static
@@ -154,7 +159,8 @@ size_t todo_init(Todo *list, const char *filename)
 
 	/* Create a new file if it doesn't exist */
 	if (list->file == NULL)
-		write_header(list);
+		if (!write_header(list))
+			return -1;
 
 	return find_tasks(list->file, NULL, NULL) * sizeof *list->tasks;
 }
