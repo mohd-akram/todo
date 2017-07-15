@@ -47,20 +47,18 @@ Build
 
 Clone the repo (eg. to `/usr/local/src`) and in it run:
 
-    mkdir bin
-    cd Todo
-    cc -std=c11 main.c todo.c -o ../bin/todo
+    cc -std=c11 src/main.c src/todo.c -o todo
 
-If you're using Visual Studio, open the solution and build Release.
+If you're using Visual Studio, open the project and build Release.
 
 Install
 -------
 
 To install globally (assuming the repo is in `/usr/local/src`):
     
-    ln -s /usr/local/src/todo/bin/todo /usr/local/bin/todo
+    ln -s /usr/local/src/todo/todo /usr/local/bin/todo
 
-On Windows, simply add the `bin` folder to your path.
+On Windows, simply add the `Release` folder to your path.
 
 The `TODO_DIR` environment variable controls the global `todo.md` file's
 location. If it is not set, the current working directory is used.
