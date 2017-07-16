@@ -121,7 +121,7 @@ bool write_header(Todo *list)
 	/* Print header underline */
 	int len = strlen(list->header);
 	for (int i = 0; i < len; i++)
-		putc('-', list->file);
+		putc('=', list->file);
 	fprintf(list->file, "\n");
 
 	return true;
@@ -302,7 +302,7 @@ void print_tasks(Todo *list)
 	printf("%s\n", list->header);
 	int len = strlen(list->header);
 	for (int i = 0; i < len; i++)
-		putchar('-');
+		putchar('=');
 	printf("\n");
 
 	int done = 0;
