@@ -72,31 +72,24 @@ int main(int argc, char *argv[])
 	Todo list;
 	size_t size = todo_init(&list, filename);
 
-	if (size == -1) {
-		fprintf(stderr, "failed to open file %s\n", filename);
-		return EXIT_FAILURE;
-	}
-
 	/* Load existing tasks */
 	void *tasks = malloc(size);
 	load_tasks(&list, tasks);
 
 	/* Parse and process arguments */
-	bool error = false;
-
 	int task_no;
 
 	bool is_add = argc > 1 && !is_option(argv[1]);
 	bool is_edit = argc > 3 && get_option(argv[1]) == 'e';
 
 	if (argc == 2 && get_task_no(argv[1], &task_no))
-		mark_task(&list, task_no);
+		size = mark_task(&list, task_no);
 	else if (argc == 3 && get_option(argv[1]) == 'r')
-		remove_task(&list, atoi(argv[2]));
+		size = remove_task(&list, atoi(argv[2]));
 	else if (argc == 3 && get_option(argv[1]) == 's')
-		space_task(&list, atoi(argv[2]));
+		size = space_task(&list, atoi(argv[2]));
 	else if (argc == 4 && get_option(argv[1]) == 'm')
-		move_task(&list, atoi(argv[2]), atoi(argv[3]));
+		size = move_task(&list, atoi(argv[2]), atoi(argv[3]));
 	else if (is_add || is_edit) {
 		/* Concatenate arguments when adding or editing a task */
 		bool has_num = get_task_no(argv[1], &task_no);
@@ -123,20 +116,17 @@ int main(int argc, char *argv[])
 		}
 
 		if (is_edit)
-			edit_task(&list, atoi(argv[2]), task);
-		else if ((size = add_task(&list, task)) && has_num) {
+			size = edit_task(&list, atoi(argv[2]), task);
+		else if ((size = add_task(&list, task)) && size != -1) {
 			tasks = realloc(tasks, size);
-			load_tasks(&list, tasks);
-			move_task(&list, list.length, task_no);
+			if (has_num) {
+				load_tasks(&list, tasks);
+				move_task(&list, list.length, task_no);
+			}
 		}
 		free(task);
-	}
-	else if (argc > 1)
-		error = true;
-
-	/* Print tasks/help */
-	if (error)
-		printf(
+	} else if (argc > 1) {
+		fprintf(stderr,
 			"usage:\n\t"
 			"show: todo\n\t"
 			"add: todo buy milk\n\t"
@@ -148,13 +138,23 @@ int main(int argc, char *argv[])
 			"remove: todo -r 1\n\t"
 			"space: todo -s 2\n"
 		);
-	else
-		print_tasks(&list);
+		return EXIT_FAILURE;
+	}
+
+	if (size == -1) {
+		fprintf(stderr, "failed to open file %s\n", filename);
+		return EXIT_FAILURE;
+	}
+
+	/* Print tasks */
+	load_tasks(&list, tasks);
+	print_tasks(&list);
 
 	/* Cleanup */
 	free(tasks);
-	fclose(list.file);
+	if (list.file != NULL)
+		fclose(list.file);
 	free(filename);
 
-	return 0;
+	return EXIT_SUCCESS;
 }
