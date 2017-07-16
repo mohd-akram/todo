@@ -128,21 +128,16 @@ int main(int argc, char *argv[])
 	} else if (argc > 1) {
 		fprintf(stderr,
 			"usage:\n\t"
-			"show: todo\n\t"
-			"add: todo buy milk\n\t"
-			"     todo \"eat cookies\"\n\t"
-			"     todo 1 pour milk\n\t"
-			"edit: todo -e 2 buy more milk\n\t"
-			"move: todo -m 3 2\n\t"
-			"mark: todo 1\n\t"
-			"remove: todo -r 1\n\t"
-			"space: todo -s 2\n"
+			"%s [-h]\n\t"
+			"%s [[-e] num] task ...\n\t"
+			"%s [-r|-s|-m pos] num\n",
+			argv[0], argv[0], argv[0]
 		);
 		return EXIT_FAILURE;
 	}
 
 	if (size == -1) {
-		fprintf(stderr, "failed to open file %s\n", filename);
+		fprintf(stderr, "todo: failed to open file %s\n", filename);
 		return EXIT_FAILURE;
 	}
 

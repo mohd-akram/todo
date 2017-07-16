@@ -3,4 +3,5 @@ Release/
 .vs/
 *.user
 *.suo
+config.mk
 todo

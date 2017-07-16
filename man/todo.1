@@ -1,0 +1,75 @@
+.Dd $Mdocdate$
+.Dt TODO 1
+.Os
+.Sh NAME
+.Nm todo
+.Nd keep track of tasks in a todo list
+.Sh SYNOPSIS
+.\" View/help
+.Nm
+.Op Fl h
+.\" Add/edit
+.Nm
+.Oo
+.Op Fl e
+.Ar num
+.Oc
+.Ar task ...
+.\" Mark/remove/space/move
+.Nm
+.Op Fl r | s | m Ar pos
+.Ar num
+.Sh DESCRIPTION
+.Nm
+manages a
+.Pa todo.md
+file containing a list of tasks. If one is found in the current working
+directory or
+.Ev TODO_DIR
+(in that order), it is used. Otherwise, when a task is first added, a new
+.Pa todo.md
+file is created in
+.Ev TODO_DIR
+(if it is set) or the current working directory.
+.Pp
+If no arguments are specified,
+.Nm
+will show the current list of tasks. If
+.Ar task
+is specified, it will be added to the end of the list, but if preceded by
+.Ar num ,
+it will be added at that position. A
+.Ar num
+argument alone will toggle that task's completion.
+.Pp
+The following options are available:
+.Bl -tag
+.\" Help
+.It Fl h
+Show a help message.
+.\" Edit
+.It Fl e
+Edit the task at
+.Ar num .
+.\" Remove
+.It Fl r
+Remove the task at
+.Ar num .
+.\" Space
+.It Fl s
+Toggle space before the task at
+.Ar num .
+.\" Move
+.It Fl m Ar pos
+Move the task at
+.Ar pos
+to
+.Ar num .
+.El
+.Sh ENVIRONMENT
+.Bl -tag
+.It Ev TODO_DIR
+The default directory of the
+.Pa todo.md
+file.
+.El

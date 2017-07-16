@@ -1,0 +1,24 @@
+#!/bin/sh
+
+while [ $# -gt 0 ]
+do
+	case $1 in
+		--prefix=*)
+			prefix="${1#*=}"
+			;;
+		--mandir=*)
+			mandir="${1#*=}"
+			;;
+		--help)
+			echo "usage: $0 [--help] [--prefix=dir] [--mandir=dir]"
+			exit
+			;;
+		*)
+			echo configure: unrecognized option: $1 >&2
+	esac
+	shift
+done
+
+> config.mk
+if [ -n "${prefix+set}" ]; then echo prefix=$prefix >> config.mk; fi
+if [ -n "${mandir+set}" ]; then echo mandir=$mandir >> config.mk; fi

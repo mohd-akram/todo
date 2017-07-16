@@ -45,20 +45,21 @@ You can change the header by editing the first line of the `todo.md` file.
 Build
 -----
 
-Clone the repo (eg. to `/usr/local/src`) and in it run:
-
-    cc -std=c11 src/main.c src/todo.c -o todo
+Run `make`.
 
 If you're using Visual Studio, open the project and build Release.
 
 Install
 -------
 
-To install globally (assuming the repo is in `/usr/local/src`):
-    
-    ln -s /usr/local/src/todo/todo /usr/local/bin/todo
+Run `sudo make install` to install to `/usr/local`.
 
-On Windows, simply add the `Release` folder to your path.
+To install to another location, run `configure` first:
+
+    ./configure --prefix=<install-dir>
+    make install
+
+On Windows, simply add the `Release` folder to your `PATH`.
 
 The `TODO_DIR` environment variable controls the global `todo.md` file's
 location. If it is not set, the current working directory is used.
