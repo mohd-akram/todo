@@ -15,15 +15,7 @@ bool is_option(char *arg)
 
 char get_option(char *arg)
 {
-	if (is_option(arg))
-		switch (arg[1]) {
-		case 'e':
-		case 'm':
-		case 'r':
-		case 's':
-			return arg[1];
-		}
-	return 0;
+	return is_option(arg) ? arg[1] : 0;
 }
 
 bool get_task_no(char *arg, int *task_no)
@@ -75,14 +67,21 @@ int main(int argc, char *argv[])
 	/* Load existing tasks */
 	void *tasks = malloc(size);
 	load_tasks(&list, tasks);
+	int count = list.length;
 
 	/* Parse and process arguments */
+	bool error = false;
+	bool help = false;
+	bool show = false;
+
 	int task_no;
 
 	bool is_add = argc > 1 && !is_option(argv[1]);
 	bool is_edit = argc > 3 && get_option(argv[1]) == 'e';
 
-	if (argc == 2 && get_task_no(argv[1], &task_no))
+	if (argc == 1)
+		show = true;
+	else if (argc == 2 && get_task_no(argv[1], &task_no))
 		size = mark_task(&list, task_no);
 	else if (argc == 3 && get_option(argv[1]) == 'r')
 		size = remove_task(&list, atoi(argv[2]));
@@ -121,29 +120,37 @@ int main(int argc, char *argv[])
 			tasks = realloc(tasks, size);
 			if (has_num) {
 				load_tasks(&list, tasks);
-				move_task(&list, list.length, task_no);
+				size = move_task(&list, list.length, task_no);
+				if (size == 0)
+					remove_task(&list, list.length);
 			}
 		}
 		free(task);
-	} else if (argc > 1) {
-		fprintf(stderr,
+	} else {
+		help = true;
+		error = !(argc == 2 && get_option(argv[1]) == 'h');
+	}
+
+	/* Reload tasks after changes */
+	load_tasks(&list, tasks);
+
+	/* Print output */
+	if (size == 0 && count == list.length && !show) {
+		fprintf(stderr, "%s: invalid arguments\n", argv[0]);
+		error = true;
+	} else if (size == -1) {
+		fprintf(stderr, "%s: failed to open file %s\n", argv[0],
+			filename);
+		error = true;
+	} else if (help)
+		fprintf(error ? stderr: stdout,
 			"usage:\n\t"
 			"%s [-h]\n\t"
 			"%s [[-e] num] task ...\n\t"
 			"%s [-r|-s|-m pos] num\n",
-			argv[0], argv[0], argv[0]
-		);
-		return EXIT_FAILURE;
-	}
-
-	if (size == -1) {
-		fprintf(stderr, "todo: failed to open file %s\n", filename);
-		return EXIT_FAILURE;
-	}
-
-	/* Print tasks */
-	load_tasks(&list, tasks);
-	print_tasks(&list);
+			argv[0], argv[0], argv[0]);
+	else
+		print_tasks(&list);
 
 	/* Cleanup */
 	free(tasks);
@@ -151,5 +158,5 @@ int main(int argc, char *argv[])
 		fclose(list.file);
 	free(filename);
 
-	return EXIT_SUCCESS;
+	return error ? EXIT_FAILURE : EXIT_SUCCESS;
 }
