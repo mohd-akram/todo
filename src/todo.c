@@ -88,7 +88,7 @@ int find_tasks(FILE *file, struct task *tasks, int *done)
 			++*done;
 		if (tasks != NULL) {
 			read_line(tasks[i].text, sizeof tasks[i].text, file);
-			tasks[i].space = space;
+			tasks[i].space = i == 0 || space;
 			tasks[i].mark = mark;
 		}
 		++i;
