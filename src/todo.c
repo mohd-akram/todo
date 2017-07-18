@@ -116,10 +116,10 @@ bool write_header(Todo *list)
 	if (list->file == NULL)
 		return false;
 
-	fprintf(list->file, "%s\n", list->header);
+	fprintf(list->file, "%s\n", list->name);
 
 	/* Print header underline */
-	int len = strlen(list->header);
+	int len = strlen(list->name);
 	for (int i = 0; i < len; i++)
 		putc('=', list->file);
 	fprintf(list->file, "\n");
@@ -142,22 +142,22 @@ size_t todo_init(Todo *list, const char *filename)
 	list->file = fopen(filename, "r");
 #endif
 
-	bool has_header = true;
+	bool has_name = true;
 
-	/* Add a default header if one doesn't exist */
+	/* Add a default name if one doesn't exist */
 	if (list->file == NULL || is_task(list->file))
-		has_header = false;
+		has_name = false;
 	else {
-		read_line(list->header, sizeof list->header, list->file);
-		if (strlen(list->header) == 0)
-			has_header = false;
+		read_line(list->name, sizeof list->name, list->file);
+		if (strlen(list->name) == 0)
+			has_name = false;
 	}
 
-	if (!has_header)
+	if (!has_name)
 #ifdef _MSC_VER
-		strcpy_s(list->header, sizeof list->header, "Todo");
+		strcpy_s(list->name, sizeof list->name, "Todo");
 #else
-		strcpy(list->header, "Todo");
+		strcpy(list->name, "Todo");
 #endif
 
 	return find_tasks(list->file, NULL, NULL) * sizeof *list->tasks;
@@ -299,8 +299,8 @@ size_t space_task(Todo *list, int task_no)
 void print_tasks(Todo *list)
 {
 	/* Print the header */
-	printf("%s\n", list->header);
-	int len = strlen(list->header);
+	printf("%s\n", list->name);
+	int len = strlen(list->name);
 	for (int i = 0; i < len; i++)
 		putchar('=');
 	printf("\n");

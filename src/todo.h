@@ -6,7 +6,7 @@
 typedef struct todo {
 	const char *filename;
 	FILE *file;
-	char header[MAXLEN];
+	char name[MAXLEN];
 	int length;
 	struct task {
 		bool space;
