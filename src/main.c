@@ -144,10 +144,9 @@ int main(int argc, char *argv[])
 		error = true;
 	} else if (help)
 		fprintf(error ? stderr: stdout,
-			"usage:\n\t"
-			"%s [-h]\n\t"
-			"%s [[-e] num] task ...\n\t"
-			"%s [-r|-s|-m pos] num\n",
+			"usage: %s [-h]\n"
+			"       %s [[-e] num] task ...\n"
+			"       %s [-r|-s|-m pos] num\n",
 			argv[0], argv[0], argv[0]);
 	else
 		print_tasks(&list);
