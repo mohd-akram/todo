@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -33,7 +32,7 @@ int main(int argc, char *argv[])
 
 	/* Create todo list */
 	Todo list;
-	rsize_t size = todo_init(&list, filename);
+	size_t size = todo_init(&list, filename);
 
 	/* Load existing tasks */
 	void *tasks = malloc(size);
@@ -79,7 +78,8 @@ int main(int argc, char *argv[])
 
 		if (is_edit)
 			size = edit_task(&list, atoi(argv[2]), task);
-		else if ((size = add_task(&list, task)) && size <= RSIZE_MAX) {
+		else if ((size = add_task(&list, task)) &&
+				size != (size_t) -1) {
 			tasks = realloc(tasks, size);
 			if (has_num) {
 				load_tasks(&list, tasks);
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 	if (size == 0 && count == list.length && !show) {
 		fprintf(stderr, "%s: invalid arguments\n", argv[0]);
 		error = true;
-	} else if (size > RSIZE_MAX) {
+	} else if (size == (size_t) -1) {
 		fprintf(stderr, "%s: failed to open file %s\n", argv[0],
 			filename);
 		error = true;
