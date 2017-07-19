@@ -17,19 +17,17 @@ bool get_task_no(char *arg, int *task_no);
 
 int main(int argc, char *argv[])
 {
-	char *filename;
-
 	/* Check if a todo file exists in the current directory */
 	FILE *file = fopen(TODO_FILE, "r");
 	if (file != NULL) fclose(file);
 
-	/* Check if the user has set a directory for the todo file */
-	size_t len;
+	/* Get todo filename */
 	char *dir = getenv(TODO_ENV);
-	len = dir == NULL || *dir == '\0' ? 0 : strlen(dir) + 1;
+	size_t len = dir == NULL ? 0 : strlen(dir) + 1;
 	len += strlen(TODO_FILE) + 1;
-	filename = calloc(len, sizeof *filename);
-	if (file == NULL && dir != NULL && *dir != '\0')
+	char *filename = malloc(len * sizeof *filename);
+	filename[0] = '\0';
+	if (file == NULL && dir != NULL)
 		(void) strcat(filename, dir), strcat(filename, "/");
 	strcat(filename, TODO_FILE);
 
