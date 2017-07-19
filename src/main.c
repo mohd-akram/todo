@@ -1,5 +1,8 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -8,24 +11,9 @@
 #define TODO_ENV "TODO_DIR"
 #define TODO_FILE "todo.md"
 
-bool is_option(char *arg)
-{
-	return strlen(arg) == 2 && arg[0] == '-' && isalpha(arg[1]);
-}
-
-char get_option(char *arg)
-{
-	return is_option(arg) ? arg[1] : 0;
-}
-
-bool get_task_no(char *arg, int *task_no)
-{
-	char *end;
-	int num = strtol(arg, &end, 10);
-	if (*end == '\0')
-		return *task_no = num, true;
-	return false;
-}
+bool is_option(char *arg);
+char get_option(char *arg);
+bool get_task_no(char *arg, int *task_no);
 
 int main(int argc, char *argv[])
 {
@@ -42,12 +30,12 @@ int main(int argc, char *argv[])
 	len += strlen(TODO_FILE) + 1;
 	filename = calloc(len, sizeof *filename);
 	if (file == NULL && dir != NULL && *dir != '\0')
-		strcat(filename, dir), strcat(filename, "/");
+		(void) strcat(filename, dir), strcat(filename, "/");
 	strcat(filename, TODO_FILE);
 
 	/* Create todo list */
 	Todo list;
-	size_t size = todo_init(&list, filename);
+	rsize_t size = todo_init(&list, filename);
 
 	/* Load existing tasks */
 	void *tasks = malloc(size);
@@ -79,7 +67,7 @@ int main(int argc, char *argv[])
 		bool has_num = get_task_no(argv[1], &task_no);
 		int start = is_edit ? 3 : has_num ? 2 : 1;
 
-		int total_len = 0;
+		size_t total_len = 0;
 		for (int i = start; i < argc; i++)
 			total_len += strlen(argv[i]) + 1;
 
@@ -93,7 +81,7 @@ int main(int argc, char *argv[])
 
 		if (is_edit)
 			size = edit_task(&list, atoi(argv[2]), task);
-		else if ((size = add_task(&list, task)) && size != -1) {
+		else if ((size = add_task(&list, task)) && size <= RSIZE_MAX) {
 			tasks = realloc(tasks, size);
 			if (has_num) {
 				load_tasks(&list, tasks);
@@ -115,12 +103,12 @@ int main(int argc, char *argv[])
 	if (size == 0 && count == list.length && !show) {
 		fprintf(stderr, "%s: invalid arguments\n", argv[0]);
 		error = true;
-	} else if (size == -1) {
+	} else if (size > RSIZE_MAX) {
 		fprintf(stderr, "%s: failed to open file %s\n", argv[0],
 			filename);
 		error = true;
 	} else if (help)
-		fprintf(error ? stderr: stdout,
+		fprintf(error ? stderr : stdout,
 			"usage: %s [-h]\n"
 			"       %s [[-e] num] task ...\n"
 			"       %s [-r|-s|-m pos] num\n",
@@ -135,4 +123,23 @@ int main(int argc, char *argv[])
 	free(filename);
 
 	return error ? EXIT_FAILURE : EXIT_SUCCESS;
+}
+
+bool is_option(char *arg)
+{
+	return strlen(arg) == 2 && arg[0] == '-' && isalpha(arg[1]);
+}
+
+char get_option(char *arg)
+{
+	return is_option(arg) ? arg[1] : 0;
+}
+
+bool get_task_no(char *arg, int *task_no)
+{
+	char *end;
+	long num = strtol(arg, &end, 10);
+	if (*end == '\0')
+		return (void) (*task_no = (int) num), true;
+	return false;
 }
