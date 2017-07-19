@@ -35,11 +35,7 @@ static
 char is_task(FILE *file)
 {
 	char x;
-#ifdef _MSC_VER
-	int res = fscanf_s(file, "- [%c]%*[ ]", &x, 1);
-#else
 	int res = fscanf(file, "- [%c]%*[ ]", &x);
-#endif
 	if (res == 1 && (x == MARK_NOT_DONE || x == MARK_DONE))
 		return x;
 	return 0;
@@ -101,17 +97,9 @@ static
 bool write_header(Todo *list)
 {
 	if (list->file == NULL)
-#ifdef _MSC_VER
-		fopen_s(&list->file, list->filename, "w+");
-#else
 		list->file = fopen(list->filename, "w+");
-#endif
 	else
-#ifdef _MSC_VER
-		freopen_s(&list->file, list->filename, "w+", list->file);
-#else
 		list->file = freopen(list->filename, "w+", list->file);
-#endif
 
 	if (list->file == NULL)
 		return false;
@@ -136,11 +124,7 @@ void write_task(Todo *list, bool space, char mark, char *text)
 size_t todo_init(Todo *list, const char *filename)
 {
 	list->filename = filename;
-#ifdef _MSC_VER
-	fopen_s(&list->file, filename, "r");
-#else
 	list->file = fopen(filename, "r");
-#endif
 
 	bool has_name = true;
 
@@ -154,11 +138,7 @@ size_t todo_init(Todo *list, const char *filename)
 	}
 
 	if (!has_name)
-#ifdef _MSC_VER
-		strcpy_s(list->name, sizeof list->name, "Todo");
-#else
 		strcpy(list->name, "Todo");
-#endif
 
 	return find_tasks(list->file, NULL, NULL) * sizeof *list->tasks;
 }

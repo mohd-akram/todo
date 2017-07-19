@@ -32,33 +32,18 @@ int main(int argc, char *argv[])
 	char *filename;
 
 	/* Check if a todo file exists in the current directory */
-	FILE *file;
-#ifdef _MSC_VER
-	fopen_s(&file, TODO_FILE, "r");
-#else
-	file = fopen(TODO_FILE, "r");
-#endif
+	FILE *file = fopen(TODO_FILE, "r");
 	if (file != NULL) fclose(file);
 
 	/* Check if the user has set a directory for the todo file */
 	size_t len;
-#ifdef _MSC_VER
-	char dir[_MAX_PATH - 12] = { 0 };
-	getenv_s(&len, &dir, _MAX_PATH - 12, TODO_ENV);
-#else
 	char *dir = getenv(TODO_ENV);
 	len = dir == NULL || *dir == '\0' ? 0 : strlen(dir) + 1;
-#endif
 	len += strlen(TODO_FILE) + 1;
 	filename = calloc(len, sizeof *filename);
 	if (file == NULL && dir != NULL && *dir != '\0')
-#ifdef _MSC_VER
-		strcat_s(filename, len, dir), strcat_s(filename, len, "\\");
-	strcat_s(filename, len, TODO_FILE);
-#else
 		strcat(filename, dir), strcat(filename, "/");
 	strcat(filename, TODO_FILE);
-#endif
 
 	/* Create todo list */
 	Todo list;
@@ -101,17 +86,9 @@ int main(int argc, char *argv[])
 		char *task = malloc(total_len);
 		task[0] = '\0';
 		for (int i = start; i < argc; i++) {
-#ifdef _MSC_VER
-			strcat_s(task, total_len, argv[i]);
-#else
 			strcat(task, argv[i]);
-#endif
 			if (i < argc - 1)
-#ifdef _MSC_VER
-				strcat_s(task, total_len, " ");
-#else
 				strcat(task, " ");
-#endif
 		}
 
 		if (is_edit)
