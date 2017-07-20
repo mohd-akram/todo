@@ -6,7 +6,7 @@
 
 #include "todo.h"
 
-#define VERSION "1.0.0-beta"
+#define VERSION "1.0.0"
 
 #define TODO_ENV "TODO_DIR"
 #define TODO_FILE "todo.md"
