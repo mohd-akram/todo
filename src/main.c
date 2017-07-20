@@ -98,20 +98,20 @@ int main(int argc, char *argv[])
 	load_tasks(&list, tasks);
 
 	/* Print output */
-	if (size == 0 && count == list.length && !show) {
-		fprintf(stderr, "%s: invalid arguments\n", argv[0]);
-		error = true;
-	} else if (size == (size_t) -1) {
-		fprintf(stderr, "%s: failed to open file %s\n", argv[0],
-			filename);
-		error = true;
-	} else if (help)
+	if (help)
 		fprintf(error ? stderr : stdout,
 			"usage: %s [-h]\n"
 			"       %s [[-e] num] task ...\n"
 			"       %s [-r|-s|-m pos] num\n",
 			argv[0], argv[0], argv[0]);
-	else
+	else if (size == (size_t) -1) {
+		fprintf(stderr, "%s: failed to open file %s\n", argv[0],
+			filename);
+		error = true;
+	} else if (size == 0 && count == list.length && !show) {
+		fprintf(stderr, "%s: invalid arguments\n", argv[0]);
+		error = true;
+	} else
 		print_tasks(&list);
 
 	/* Cleanup */
