@@ -6,9 +6,13 @@ This is a simple todo app written in C.
 Usage
 -----
 
-To create a new todo file or view an existing one:
+To view your todo list:
 
     todo
+
+To change its name:
+
+    todo -n Things to Do
 
 To add a new task:
 
@@ -39,8 +43,6 @@ To add space before a task:
 Help:
 
     todo -h
-
-You can change the header by editing the first line of the `todo.md` file.
 
 Build
 -----

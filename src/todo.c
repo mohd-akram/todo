@@ -138,6 +138,47 @@ void load_tasks(Todo *list, void *tasks)
 	list->length = find_tasks(list->file, list->tasks, NULL);
 }
 
+void print_tasks(Todo *list)
+{
+	/* Print the header */
+	printf("%s\n", list->name);
+	size_t len = strlen(list->name);
+	for (size_t i = 0; i < len; i++)
+		putchar('=');
+	printf("\n");
+
+	int done = 0;
+	for (int i = 0; i < list->length; i++)
+		if (list->tasks[i].mark == MARK_DONE)
+			++done;
+
+	/* Print the task count */
+	printf("\n%d/%d %s\n", done, list->length,
+		list->length == 1 ? "task" : "tasks");
+
+	/* Print the tasks */
+	for (int i = 0; i < list->length; i++)
+		printf("%s%2d. [%c] %s\n", list->tasks[i].space ? "\n" : "",
+			i+1, list->tasks[i].mark, list->tasks[i].text);
+}
+
+int change_name(Todo *list, char *name)
+{
+	if (strlen(name) >= sizeof list->name)
+		return -2;
+
+	strcpy(list->name, name);
+
+	if (!write_header(list))
+		return -1;
+
+	for (int i = 0; i < list->length; i++)
+		write_task(list, list->tasks[i].space, list->tasks[i].mark,
+			list->tasks[i].text);
+
+	return 0;
+}
+
 static
 bool is_valid_text(char *text)
 {
@@ -145,13 +186,13 @@ bool is_valid_text(char *text)
 	return len > 1 && len < MAXTEXT;
 }
 
-size_t add_task(Todo *list, char *text)
+int add_task(Todo *list, char *text, size_t *size)
 {
 	if (!is_valid_text(text))
-		return 0;
+		return -2;
 
 	if (!write_header(list))
-		return (size_t) -1;
+		return -1;
 
 	for (int i = 0; i < list->length; i++)
 		write_task(list, list->tasks[i].space, list->tasks[i].mark,
@@ -160,31 +201,34 @@ size_t add_task(Todo *list, char *text)
 	/* Add new task */
 	write_task(list, list->length == 0, MARK_NOT_DONE, text);
 
-	return (size_t) (list->length + 1) * sizeof *list->tasks;
+	if (size != NULL)
+		*size = (size_t) (list->length + 1) * sizeof *list->tasks;
+
+	return 0;
 }
 
-size_t edit_task(Todo *list, int task_no, char *text)
+int edit_task(Todo *list, int task_no, char *text)
 {
 	if (task_no < 1 || task_no > list->length || !is_valid_text(text))
-		return 0;
+		return -2;
 
 	if (!write_header(list))
-		return (size_t) -1;
+		return -1;
 
 	for (int i = 0; i < list->length; i++)
 		write_task(list, list->tasks[i].space, list->tasks[i].mark,
 			i+1 == task_no ? text : list->tasks[i].text);
 
-	return (size_t) list->length * sizeof *list->tasks;
+	return 0;
 }
 
-size_t mark_task(Todo *list, int task_no)
+int mark_task(Todo *list, int task_no)
 {
 	if (task_no < 1 || task_no > list->length)
-		return 0;
+		return -2;
 
 	if (!write_header(list))
-		return (size_t) -1;
+		return -1;
 
 	for (int i = 0; i < list->length; i++) {
 		char mark = list->tasks[i].mark;
@@ -194,16 +238,51 @@ size_t mark_task(Todo *list, int task_no)
 			list->tasks[i].text);
 	}
 
-	return (size_t) list->length * sizeof *list->tasks;
+	return 0;
 }
 
-size_t move_task(Todo *list, int from, int to)
+int remove_task(Todo *list, int task_no)
 {
-	if (from < 1 || from > list->length || to < 1 || to > list->length)
-		return 0;
+	if (task_no < 1 || task_no > list->length)
+		return -2;
 
 	if (!write_header(list))
-		return (size_t) -1;
+		return -1;
+
+	for (int i = 0; i < list->length; i++)
+		if (i+1 != task_no)
+			write_task(list,
+				(i+1 == task_no+1 && list->tasks[i-1].space) ||
+					list->tasks[i].space,
+				list->tasks[i].mark, list->tasks[i].text);
+
+	return 0;
+}
+
+int space_task(Todo *list, int task_no)
+{
+	if (task_no < 2 || task_no > list->length)
+		return -2;
+
+	if (!write_header(list))
+		return -1;
+
+	for (int i = 0; i < list->length; i++)
+		write_task(list,
+			i+1 == task_no ? !list->tasks[i].space :
+				list->tasks[i].space,
+			list->tasks[i].mark, list->tasks[i].text);
+
+	return 0;
+}
+
+int move_task(Todo *list, int from, int to)
+{
+	if (from < 1 || from > list->length || to < 1 || to > list->length)
+		return -2;
+
+	if (!write_header(list))
+		return -1;
 
 	int len = list->length;
 	for (int i = 0, num = 1; i < len; i++, num++) {
@@ -227,64 +306,5 @@ size_t move_task(Todo *list, int from, int to)
 			list->tasks[idx].text);
 	}
 
-	return (size_t) list->length * sizeof *list->tasks;
-}
-
-size_t remove_task(Todo *list, int task_no)
-{
-	if (task_no < 1 || task_no > list->length)
-		return 0;
-
-	if (!write_header(list))
-		return (size_t) -1;
-
-	for (int i = 0; i < list->length; i++)
-		if (i+1 != task_no)
-			write_task(list,
-				(i+1 == task_no+1 && list->tasks[i-1].space) ||
-					list->tasks[i].space,
-				list->tasks[i].mark, list->tasks[i].text);
-
-	return (size_t) (list->length - 1) * sizeof *list->tasks;
-}
-
-size_t space_task(Todo *list, int task_no)
-{
-	if (task_no < 2 || task_no > list->length)
-		return 0;
-
-	if (!write_header(list))
-		return (size_t) -1;
-
-	for (int i = 0; i < list->length; i++)
-		write_task(list,
-			i+1 == task_no ? !list->tasks[i].space :
-				list->tasks[i].space,
-			list->tasks[i].mark, list->tasks[i].text);
-
-	return (size_t) list->length * sizeof *list->tasks;
-}
-
-void print_tasks(Todo *list)
-{
-	/* Print the header */
-	printf("%s\n", list->name);
-	size_t len = strlen(list->name);
-	for (size_t i = 0; i < len; i++)
-		putchar('=');
-	printf("\n");
-
-	int done = 0;
-	for (int i = 0; i < list->length; i++)
-		if (list->tasks[i].mark == MARK_DONE)
-			++done;
-
-	/* Print the task count */
-	printf("\n%d/%d %s\n", done, list->length,
-		list->length == 1 ? "task" : "tasks");
-
-	/* Print the tasks */
-	for (int i = 0; i < list->length; i++)
-		printf("%s%2d. [%c] %s\n", list->tasks[i].space ? "\n" : "",
-			i+1, list->tasks[i].mark, list->tasks[i].text);
+	return 0;
 }

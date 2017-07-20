@@ -17,10 +17,11 @@ typedef struct todo {
 
 size_t todo_init(Todo *list, const char *filename);
 void load_tasks(Todo *list, void *tasks);
-size_t add_task(Todo *list, char *task);
-size_t edit_task(Todo *list, int task_no, char *task);
-size_t mark_task(Todo *list, int task_no);
-size_t move_task(Todo *list, int from, int to);
-size_t remove_task(Todo *list, int task_no);
-size_t space_task(Todo *list, int task_no);
 void print_tasks(Todo *list);
+int change_name(Todo *list, char *name);
+int add_task(Todo *list, char *task, size_t *size);
+int edit_task(Todo *list, int task_no, char *task);
+int mark_task(Todo *list, int task_no);
+int remove_task(Todo *list, int task_no);
+int space_task(Todo *list, int task_no);
+int move_task(Todo *list, int from, int to);

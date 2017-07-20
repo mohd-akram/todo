@@ -5,9 +5,12 @@
 .Nm todo
 .Nd keep track of tasks in a todo list
 .Sh SYNOPSIS
-.\" View/help
+.\" View/help/version
 .Nm
-.Op Fl h
+.Op Fl h | v
+.\" Name
+.Nm
+.Fl n Ar name ...
 .\" Add/edit
 .Nm
 .Oo
@@ -26,7 +29,7 @@ manages a
 file containing a list of tasks. If one is found in the current working
 directory or
 .Ev TODO_DIR
-(in that order), it is used. Otherwise, when a task is first added, a new
+(in that order), it is used. Otherwise, a new
 .Pa todo.md
 file is created in
 .Ev TODO_DIR
@@ -34,7 +37,7 @@ file is created in
 .Pp
 If no arguments are specified,
 .Nm
-will show the current list of tasks. If
+will display the current list of tasks. If
 .Ar task
 is specified, it will be added to the end of the list, but if preceded by
 .Ar num ,
@@ -46,7 +49,13 @@ The following options are available:
 .Bl -tag
 .\" Help
 .It Fl h
-Show a help message.
+Print a help message.
+.\" Version
+.It Fl v
+Display version information.
+.\" Name
+.It Fl n
+Change the list name.
 .\" Edit
 .It Fl e
 Edit the task at
