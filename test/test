@@ -1,0 +1,110 @@
+#!/bin/sh
+
+todo=../todo
+alias todo=$todo
+
+fail=0
+
+# Setup
+unset TODO_DIR
+
+# Show
+actual=`todo`
+expected="\
+Todo
+====
+
+0/0 tasks"
+test "$actual" = "$expected" || { fail=1; echo $0: show list failed >&2; }
+
+# Name
+actual=`todo -n My Tasks`; todo -n Todo > /dev/null
+expected="\
+My Tasks
+========
+
+0/0 tasks"
+test "$actual" = "$expected" || { fail=1; echo $0: name list failed >&2; }
+
+# Add task
+actual=`todo new task`
+expected="\
+Todo
+====
+
+0/1 task
+
+ 1. [ ] new task"
+test "$actual" = "$expected" || { fail=1; echo $0: add task failed >&2; }
+
+# Edit task
+actual=`todo -e 1 my new task`
+expected="\
+Todo
+====
+
+0/1 task
+
+ 1. [ ] my new task"
+test "$actual" = "$expected" || { fail=1; echo $0: edit task failed >&2; }
+
+# Mark task
+actual=`todo 1`
+expected="\
+Todo
+====
+
+1/1 task
+
+ 1. [x] my new task"
+test "$actual" = "$expected" || { fail=1; echo $0: mark task failed >&2; }
+
+# Remove task
+actual=`todo -r 1`
+expected="\
+Todo
+====
+
+0/0 tasks"
+test "$actual" = "$expected" || { fail=1; echo $0: remove task failed >&2; }
+
+# Space task
+todo first task > /dev/null
+todo second task > /dev/null
+actual=`todo -s 2`
+expected="\
+Todo
+====
+
+0/2 tasks
+
+ 1. [ ] first task
+
+ 2. [ ] second task"
+test "$actual" = "$expected" || { fail=1; echo $0: space task failed >&2; }
+
+# Move task
+actual=`todo -m 2 1`
+expected="\
+Todo
+====
+
+0/2 tasks
+
+ 1. [ ] second task
+ 2. [ ] first task"
+test "$actual" = "$expected" || { fail=1; echo $0: move task failed >&2; }
+
+# Help
+actual=`todo -h`
+expected="\
+usage: $todo [-h | -v]
+       $todo -n name ...
+       $todo [[-e] num] task ...
+       $todo [-r | -s | -m pos] num"
+test "$actual" = "$expected" || { fail=1; echo $0: show help failed >&2; }
+
+# Cleanup
+rm -f todo.md
+
+exit $fail

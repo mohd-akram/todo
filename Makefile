@@ -1,7 +1,14 @@
+.POSIX:
+
 all: todo
 
 todo: src/main.c src/todo.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ src/main.c src/todo.c
+
+test: .force
+	cd test && ./test
+
+.force:
 
 prefix = /usr/local
 bindir = $(prefix)/bin

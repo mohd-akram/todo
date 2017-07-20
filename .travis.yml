@@ -1,0 +1,4 @@
+language: c
+compiler: clang
+env:
+  - CFLAGS="-Weverything -Werror"
