@@ -11,6 +11,6 @@ mandir = $(prefix)/share/man
 
 install: todo
 	install -d $(DESTDIR)$(bindir)
-	install todo $(DESTDIR)$(bindir)
+	install -s todo $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(mandir)/man1
 	install man/todo.1 $(DESTDIR)$(mandir)/man1
