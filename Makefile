@@ -1,9 +1,18 @@
+# Windows \
+!if 1 # \
+EXEEXT=.exe # \
+!else
 .POSIX:
+# \
+!endif
 
-all: todo
+all: todo$(EXEEXT)
 
-todo: src/main.c src/todo.c
+todo$(EXEEXT): src/main.c src/todo.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ src/main.c src/todo.c
+
+# POSIX \
+!if 0
 
 test: .force
 	cd test && ./test
@@ -21,3 +30,6 @@ install: todo
 	install -s todo $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(mandir)/man1
 	install man/todo.1 $(DESTDIR)$(mandir)/man1
+
+# \
+!endif

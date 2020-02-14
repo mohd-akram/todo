@@ -47,7 +47,7 @@ Help:
 Build
 -----
 
-Run `make`.
+Run `make` (or `nmake` on Windows).
 
 If you're using Visual Studio, open the project and build Release.
 
