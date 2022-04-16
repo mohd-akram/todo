@@ -29,7 +29,7 @@ install: todo
 	install -d $(DESTDIR)$(bindir)
 	install -s todo $(DESTDIR)$(bindir)
 	install -d $(DESTDIR)$(mandir)/man1
-	install man/todo.1 $(DESTDIR)$(mandir)/man1
+	install -m 644 man/todo.1 $(DESTDIR)$(mandir)/man1
 
 # \
 !endif
